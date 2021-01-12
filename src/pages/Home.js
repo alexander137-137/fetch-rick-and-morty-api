@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { HomePageLayout } from '../layouts/HomePage';
-import { Row, Col, Card, Button, Form } from 'react-bootstrap';
-
+import { Row, Col, Button, Form } from 'react-bootstrap';
+import { motion } from 'framer-motion';
+import { CardComponent } from '../components/Card';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 export const HomePage = () => {
   const defaultUrl = 'https://rickandmortyapi.com/api/character';
   const [page, setPage] = useState({});
   const [characters, setCharacters] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const fetchAll = async (url) => {
+    setLoading(true);
     const response = await fetch(url);
     const result = await response.json();
 
     const { info, results } = result;
     setPage({ currentPageUrl: url, info });
+    setLoading(false);
 
     if (!info.prev) {
       setCharacters(results);
       return;
     }
+
     setCharacters([...characters, ...results]);
   };
 
@@ -36,7 +42,7 @@ export const HomePage = () => {
   };
 
   const onSubmitHandler = () => {
-    const filterUrl = `https://rickandmortyapi.com/api/character/?name=${searchTerm}&status=alive`;
+    const filterUrl = `https://rickandmortyapi.com/api/character/?name=${searchTerm}`;
     fetchAll(filterUrl);
   };
 
@@ -57,60 +63,37 @@ export const HomePage = () => {
           </Form>
         </Col>
       </Row>
-      <Row xs={1} sm={2} md={3}>
-        {characters.map((character) => {
-          const { id, name, status, species, gender, image } = character;
-          return (
-            <Col key={id} className='mb-5'>
-              <Card>
-                <Card.Img src={image} />
-                <Card.Body>
-                  <Card.Title className='text-center'>{name}</Card.Title>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                    }}>
-                    <Card.Subtitle className='mb-2 text-muted'>
-                      Status:
-                    </Card.Subtitle>
-                    <Card.Text className='ml-2'>{status}</Card.Text>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                    }}>
-                    <Card.Subtitle className='mb-2 text-muted'>
-                      Species:
-                    </Card.Subtitle>
-                    <Card.Text className='ml-2'>{species}</Card.Text>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                    }}>
-                    <Card.Subtitle className='mb-2 text-muted'>
-                      Gender:
-                    </Card.Subtitle>
-                    <Card.Text className='ml-2'>{gender}</Card.Text>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          );
-        })}
-      </Row>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-        }}>
-        <Button variant='primary' size='lg' onClick={() => nextPage()}>
-          Load more...
-        </Button>
-      </div>
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <motion.div>
+          <Row xs={1} sm={2} md={3}>
+            {characters.map((character) => {
+              const { id } = character;
+              return (
+                <motion.div key={id} whileHover={{ scale: 1.1 }}>
+                  <Col className='mb-5'>
+                    <CardComponent item={character} />
+                  </Col>
+                </motion.div>
+              );
+            })}
+          </Row>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+            }}>
+            <Button
+              variant='primary'
+              size='lg'
+              onClick={() => nextPage()}
+              className='mb-5'>
+              Load more...
+            </Button>
+          </div>
+        </motion.div>
+      )}
     </HomePageLayout>
   );
 };

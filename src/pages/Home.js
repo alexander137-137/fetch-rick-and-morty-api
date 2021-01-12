@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { HomePageLayout } from '../layouts/HomePage';
 import { Row, Col, Card, Button, Form } from 'react-bootstrap';
-import { motion } from 'framer-motion';
-
-const ImageVariants = {
-  hover: {
-    scale: 1.1,
-  },
-};
 
 export const HomePage = () => {
   const defaultUrl = 'https://rickandmortyapi.com/api/character';
-
   const [page, setPage] = useState({});
   const [characters, setCharacters] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,6 +24,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     fetchAll(defaultUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const nextPage = () => {
